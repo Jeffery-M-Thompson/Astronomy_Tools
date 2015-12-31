@@ -23,4 +23,12 @@ long_line_behaviour=2
 long_line_column=80
 
 [files]
-current_page=0
+current_page=1
+FILE_NAME_0=990;SQL;0;EUTF-8;1;1;0;%2Fstorage%2FAstronomy%2FAstronomy_Tools%2Fcasjobs.sql;0;4
+FILE_NAME_1=517;Python;0;EUTF-8;1;1;0;%2Fstorage%2FAstronomy%2FAstronomy_Tools%2Fprocess_sdss_data.py;0;4
+FILE_NAME_2=328;Python;0;EUTF-8;1;1;0;%2Fstorage%2FAstronomy%2FAstronomy_Tools%2Fplot_data.py;0;4
+
+[editor]
+line_wrapping=false
+line_break_column=72
+auto_continue_multiline=true
