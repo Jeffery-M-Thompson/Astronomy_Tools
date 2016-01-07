@@ -70,3 +70,4 @@ Select objid, ra, dec, l ,b, psfMag_u, psfMag_g, psfMag_r, psfMag_i, psfMag_z,
     ((psfmag_g -(@correction_g * extinction_g)) between 16.0 and 23.0) and
     ((psfmag_g -(@correction_g * extinction_g)) - (psfmag_r -(@correction_r * extinction_r)) between 0.1 and 0.3) and
     ((psfmag_u -(@correction_u * extinction_u)) - (psfmag_g -(@correction_g * extinction_g)) > 0.4)
+
