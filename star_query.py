@@ -33,11 +33,11 @@ def getTable(b_low, b_high, l_low, l_high, delta_b, delta_l, release, output):
 		print (results)
 	return results
 	
-b_low  = -80.0
+b_low  = -73.40
 b_high = -70.0
 l_low	= 0.0
 l_high	=360.0
-delta_b = 0.1
+delta_b = 0.05
 delta_l = 360.0
 release = 14
 output = True
