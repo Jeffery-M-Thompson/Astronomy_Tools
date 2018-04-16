@@ -26,12 +26,11 @@ def query_star(release):
 
 # This generates a hdf table of all MSTO stars given the 
 
-def query_MSTO(release, dered):
+def query_MSTO(release, dered, b_low, b_high):
 	if dered:
-			queryString = ('Select objId
+		queryString = 'Select objId, ra, dec, l, b, dered_u, dered_g, dered_r, dered_i, dered_z from star where (b>={0}) and (b<{1})'.format(b_low, b_high)
 	else:
-		
-	
+		queryString = 'Select objId, ra, dec, l, b, psfMag_u, psfMag_g, psfMag_r, psfMag_i, psfMag_z from star where (b>={0}) and (b<{1})'.format(b_low, b_high)
 	return MSTO_Table
 	
 	
