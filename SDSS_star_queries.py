@@ -37,9 +37,9 @@ def query_MSTO(release, b_low, b_high):
 	'dered_z from star WHERE b>={0} and b<{1} AND '
 	'dered_g BETWEEN 16.0 AND 23.0 AND '
 	'(dered_g - dered_r) BETWEEN 0.1 AND 0.3 AND '
-	'(dered_u - dered_g) > 0.4 AND
-	'(flags & dbo.fPhotoFlags('SATURATED')) = 0 AND '
-	'(flags & dbo.fPhotoFlags('EDGE')) = 0').format(b_low, b_high)	
+	'(dered_u - dered_g) > 0.4 AND '
+	'(flags & dbo.fPhotoFlags(\'SATURATED\')) = 0 AND '
+	'(flags & dbo.fPhotoFlags(\'EDGE\')) = 0').format(b_low, b_high)	
 	print (queryString)
 	
 	MSTO_Table = SDSS.query_sql(queryString, data_release = release, timeout = 3600)
