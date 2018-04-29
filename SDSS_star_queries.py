@@ -20,27 +20,7 @@ def write_table(query_results):
 
 # This generates a hdf5 file of all the stars in SDSS given the data release
 
-def query_star(release):
-	
-	return ALL_Table
-
-# This generates a hdf table of all MSTO stars given the 
-
-def query_MSTO(release, b_low, b_high):
-	
-	queryString = ('Select objId, ra, dec, l, b, dered_u, dered_g, dered_r,'
-	'dered_i, dered_z from star where (b>={0}) and (b<{1}) and ' 
-	'((dered_g) betweeen 16.0 and 23.0) and '
-	'((dered_g - dered_r) between 0.1 and 0.3) and '
-	'((dered_u - dered_g) > 0.4)'.format(b_low, b_high))
-	
-	print (queryString)
-	
-	MSTO_Table = SDSS.query_sql(queryString, data_release = release, timeout = 3600)
-	
-	return MSTO_Table
-
-def query_All(release, b_low, b_high):	
+def query_star(release):	
 	query = 'Select * from star where (b>={0}) and (b<{1})'.format(b_low, b_high)
 	if output:
 		print (query)
@@ -48,6 +28,41 @@ def query_All(release, b_low, b_high):
 	if output:
 		print (results)
 	return results
+
+# This generates a hdf table of all MSTO stars given the 
+
+def query_MSTO(release, b_low, b_high):
+
+	queryString = ('Select objID, ra, dec, l, b, dered_u, dered_g, dered_r, dered_i, '
+	'dered_z from star WHERE b>={0} and b<{1} AND '
+	'dered_g BETWEEN 16.0 AND 23.0 AND '
+	'(dered_g - dered_r) BETWEEN 0.1 AND 0.3 AND '
+	'(dered_u - dered_g) > 0.4').format(b_low, b_high)	
+	print (queryString)
 	
-table = query_MSTO(14, -90, -85)
-print (table)
+	MSTO_Table = SDSS.query_sql(queryString, data_release = release, timeout = 3600)
+
+	return MSTO_Table
+	
+b_low  = -90.00
+b_high = 90.0
+delta_b = 1.0
+release = 14
+
+count = int((b_high-b_low)/delta_b)+1
+scans = np.linspace(b_low, b_high, num=count)
+for b in np.nditer(scans):	
+	bnext 	= b + delta_b
+	blow 	= str("%.2f" % np.round_(b,2))
+	bhigh 	= str("%.2f" % np.round_(bnext,2))
+	qtable = query_MSTO(release, blow, bhigh)
+	print(qtable)
+	if qtable is None:
+		noneR ='No results in {0} to {1}'.format(blow, bhigh)
+		print(noneR)
+	else:
+		file_name = './MSTO_tars_DR{0}_{1}_to{2}.csv'.format(str(release), str(blow), str(bhigh))
+		qtable.write(file_name, format='ascii.csv')
+
+
+
