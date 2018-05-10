@@ -8,6 +8,9 @@ import scipy as sc
 import matplotlib
 #matplotlib.use('PS')
 import matplotlib.pyplot as plt
+import os
+import sys
+import csv
 
 """ Code from Matt Newby's astro_coordinates updated by Jeff Thompson to
 with python3 and astropy """
@@ -434,3 +437,69 @@ def Rot_z(t):
 
 def help():
     return -1
+
+# static variable to data inputs and outputs
+
+INPUT_DATAFILE = sys.argv[1]
+OUT_PATH = sys.argv[2]
+START = int(sys.argv[3])
+END = int(sys.argv[4]) + 1
+CUTS = sys.argv[5]
+correction = float(3.303/3.793)
+size = START - END
+cut = [([0]*2) for i in range(START, END)]
+
+for wedge in range(START, END):
+	with open(CUTS) as cutfile:
+		reader = csv.DictReader(cutfile)
+		for row in reader:
+			file_wedge = int(row['Wedge'])
+			start = float(row['Start'])
+			end = float(row['End'])
+			if(file_wedge == wedge):
+				cut[wedge-START] = [start, end]
+
+# Create Filehandle for output
+# Wedge range 60 - 100
+# Bit Flags for Accepted
+#  mu nu g
+
+for wedge in range(START, END):
+    OUTPUT_DATAFILE1 = "{0}/{1}_mu_nu_r.csv".format(OUT_PATH, wedge) 
+    OUTPUT_DATAFILE2 = "{0}/{1}_l_b_r.csv".format(OUT_PATH, wedge)
+    with open (OUTPUT_DATAFILE1, 'w') as fileout1, open (OUTPUT_DATAFILE2, 'w') as fileout2:
+    #fileout1 = open(OUTPUT_DATAFILE1, 'wb')
+    #fileout2 = open(OUTPUT_DATAFILE2, 'wb')
+    	row_out1 = csv.writer(fileout1, delimiter =' ')
+    	row_out2 = csv.writer(fileout2, delimiter =' ')
+    	with open(INPUT_DATAFILE) as DATAFILE:
+        	dictionary = csv.DictReader(DATAFILE)
+        	for row in dictionary:
+        		l = float(row['l'])
+        		b = float(row['b'])
+        		#psfMag_g = float(row['psfMag_g'])
+        		#extnct_g = float(row['extinction_g'])
+        		#g = float(psfMag_g - (extnct_g * correction))
+        		g = float(row['dered_g'])
+        		r = getr(g)
+        		mu, nu = lb2GC(l, b, wedge)
+        		start = cut[wedge-START][0]
+        		end = cut[wedge-START][1]
+        		accepted = 0
+        		if (abs(nu) <= 1.25):
+        			accepted = accepted | 1
+        		if (g <= 22.50):
+        			accepted = accepted | 2
+        		if (start >= 0.0):
+        			if (mu >= start and mu <= end):
+        				accepted = accepted | 4
+        		else:
+        			if ((mu >=(start+360) and mu <= 360) or (mu >=0 and mu <=end)):
+        				accepted = accepted | 4
+        		if (accepted == 7):
+        			print ("ACCPETED in Wedge {3}:\tmu\t\tnu \t\tr\n                     \t{0}\t{1}\t{2}".format(mu, nu, r, wedge))
+        			print ("                      \tl  \t\tb \t\tr\n                     \t{0}\t{1}\t{2}".format(l, b, r, wedge))
+        			row_out1.writerow([mu, nu, r])
+        			row_out2.writerow([l, b, r])
+        			
+    print ("WEDGE {0} COMPLETED".format(wedge))

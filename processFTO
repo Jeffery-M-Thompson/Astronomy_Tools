@@ -1,0 +1,117 @@
+#!/usr/bin/env python
+
+##########################################################################################
+#
+# This file is to process data files from the SDSS Data Release 9                       
+#
+# This will take F Turn off Stars from the file FTO_South_2_mnewby.csv
+# The FTO_South_2_mnewby.csv file was created by running the following
+# query on the SDSS data release.
+#
+#       As done through DR8 CasJobs:
+#
+#           select  l,b,
+#
+#            dered_u,dered_g,dered_r,dered_i,dered_z,
+#
+#            psfMag_u,psfMag_g,psfMag_r,psfMag_i,psfMag_z,
+#
+#            extinction_u,extinction_g,extinction_r,extinction_i,extinction_z  into  mydb.FTO_south_clean  from  star
+#
+#           where  (dered_g  between  16.0  and  23.0)and
+#
+#            (b  <  -20.0)and
+#
+#            (dered_g  -  dered_r  between  0.1  and  0.3)and
+#
+#            (dered_u  -  dered_g  >  0.4)and
+#
+#            clean=1  and
+#
+#            mode=1  and
+#
+#            type=6
+#
+
+# import modules
+
+import astro_coordinates
+from astro_coordinates import lb2GC as lb2GC
+from astro_coordinates import getr as getr
+import math as ma
+import numpy as np
+from numpy import linalg as LA
+import scipy as sc
+#import files as f
+import matplotlib
+import matplotlib.pyplot as plt
+import csv
+import sys
+
+# static variable to data inputs and outputs
+
+INPUT_DATAFILE = sys.argv[1]
+OUT_PATH = sys.argv[2]
+START = int(sys.argv[3])
+END = int(sys.argv[4]) + 1
+CUTS = sys.argv[5]
+correction = float(3.303/3.793)
+size = START - END
+cut = [([0]*2) for i in range(START, END)]
+
+for wedge in range(START, END):
+    with open(CUTS, 'rb') as CUTFILE:
+        CUTFILE.seek(0)
+        dictionary = csv.DictReader(CUTFILE)
+        for row in dictionary:
+            file_wedge = int(row['Wedge'])
+            start = float(row['Start'])
+            end = float(row['End'])
+            if(file_wedge == wedge):
+                cut[wedge-START] = [start, end]
+
+# Create Filehandle for output
+# Wedge range 60 - 100
+# Bit Flags for Accepted
+#  mu nu g
+
+for wedge in range(START, END):
+    OUTPUT_DATAFILE1 = "{0}/{1}_mu_nu_r.csv".format(OUT_PATH, wedge) 
+    OUTPUT_DATAFILE2 = "{0}/{1}_l_b_r.csv".format(OUT_PATH, wedge) 
+    fileout1 = open(OUTPUT_DATAFILE1, 'wb')
+    fileout2 = open(OUTPUT_DATAFILE2, 'wb')
+    row_out1 = csv.writer(fileout1, delimiter =' ')
+    row_out2 = csv.writer(fileout2, delimiter =' ')
+    with open(INPUT_DATAFILE, 'rb') as DATAFILE:
+        DATAFILE.seek(0)
+        dictionary = csv.DictReader(DATAFILE)
+        for row in dictionary:
+            l = float(row['l'])
+            b = float(row['b'])
+            psfMag_g = float(row['psfMag_g'])
+            extnct_g = float(row['extinction_g'])
+            g = float(psfMag_g - (extnct_g * correction))
+            #g = float(row['dered_g']);
+            r = getr(g)
+            mu, nu = lb2GC(l, b, wedge)
+            start = cut[wedge-START][0]
+            end = cut[wedge-START][1]
+            accepted = 0
+            if (abs(nu) <= 1.25):
+                accepted = accepted | 1
+            if (g <= 22.50):
+                accepted = accepted | 2
+            if (start >= 0.0):
+                if (mu >= start and mu <= end):
+                    accepted = accepted | 4
+            else:
+                if ((mu >=(start+360) and mu <= 360) or (mu >=0 and mu <=end)):
+                    accepted = accepted | 4
+            if (accepted == 7):
+                print "ACCPETED in Wedge {3}:\tmu\t\tnu \t\tr\n                     \t{0}\t{1}\t{2}".format(mu, nu, r, wedge)
+                print "                      \tl  \t\tb \t\tr\n                     \t{0}\t{1}\t{2}".format(l, b, r, wedge)
+                row_out1.writerow([mu, nu, r]) 
+                row_out2.writerow([l, b, r])   
+    fileout1.close()
+    fileout2.close()
+    print "WEDGE {0} COMPLETED".format(wedge)
