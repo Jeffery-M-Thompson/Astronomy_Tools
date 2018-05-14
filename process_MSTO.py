@@ -465,18 +465,22 @@ for wedge in range(START, END):
 #  mu nu g
 
 for wedge in range(START, END):
-    OUTPUT_DATAFILE1 = "{0}/{1}_mu_nu_r.csv".format(OUT_PATH, wedge) 
-    OUTPUT_DATAFILE2 = "{0}/{1}_l_b_r.csv".format(OUT_PATH, wedge)
-    with open (OUTPUT_DATAFILE1, 'w') as fileout1, open (OUTPUT_DATAFILE2, 'w') as fileout2:
+    OUTPUT_DATAFILE1 = "{0}/{1}_mu_nu_r.star".format(OUT_PATH, wedge) 
+    OUTPUT_DATAFILE2 = "{0}/{1}_l_b_r.star".format(OUT_PATH, wedge)
+    OUTPUT_DATAFILE3 = "{0}/{1}_ra_dec_r.star".format(OUT_PATH, wedge)
+    with open (OUTPUT_DATAFILE1, 'w') as fileout1, open (OUTPUT_DATAFILE2, 'w') as fileout2, open (OUTPUT_DATAFILE3, 'w') as fileout3:
     #fileout1 = open(OUTPUT_DATAFILE1, 'wb')
     #fileout2 = open(OUTPUT_DATAFILE2, 'wb')
     	row_out1 = csv.writer(fileout1, delimiter =' ')
     	row_out2 = csv.writer(fileout2, delimiter =' ')
+    	row_out3 = csv.writer(fileout3, delimiter =' ')
     	with open(INPUT_DATAFILE) as DATAFILE:
         	dictionary = csv.DictReader(DATAFILE)
         	for row in dictionary:
         		l = float(row['l'])
         		b = float(row['b'])
+        		ra = float(row['ra'])
+        		dec = float(row['dec'])
         		#psfMag_g = float(row['psfMag_g'])
         		#extnct_g = float(row['extinction_g'])
         		#g = float(psfMag_g - (extnct_g * correction))
@@ -501,5 +505,5 @@ for wedge in range(START, END):
         			print ("                      \tl  \t\tb \t\tr\n                     \t{0}\t{1}\t{2}".format(l, b, r, wedge))
         			row_out1.writerow([mu, nu, r])
         			row_out2.writerow([l, b, r])
-        			
+        			row_out3.writerow([ra, dec, r])
     print ("WEDGE {0} COMPLETED".format(wedge))

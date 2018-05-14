@@ -46,7 +46,7 @@ def query_MSTO(release, b_low, b_high):
 
 	return MSTO_Table
 	
-b_low  = -90.00
+b_low  = 0.0
 b_high = 90.0
 delta_b = 1.0
 release = 14
@@ -63,7 +63,7 @@ for b in np.nditer(scans):
 		noneR ='No results in {0} to {1}'.format(blow, bhigh)
 		print(noneR)
 	else:
-		file_name = './MSTO_tars_DR{0}_{1}_to{2}.csv'.format(str(release), str(blow), str(bhigh))
+		file_name = './MSTO_stars_DR_{0}_{1}_to{2}.csv'.format(str(release), str(blow), str(bhigh))
 		qtable.write(file_name, format='ascii.csv')
 
 
